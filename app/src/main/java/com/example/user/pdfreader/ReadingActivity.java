@@ -40,7 +40,7 @@ public class ReadingActivity extends AppCompatActivity {
      */
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler mHideHandler = new Handler();
-    private BookViewPager mContentView; // TODO: 5/4/2017 change content view type
+    private BookViewPager mContentView;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -100,8 +100,7 @@ public class ReadingActivity extends AppCompatActivity {
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
-        mContentView = (BookViewPager) findViewById(R.id.fullscreen_content);// TODO: 5/4/2017 initialize ViewPager
-        // TODO: 5/4/2017 create custom PageAdapter to set InteractiveImageView 
+        mContentView = (BookViewPager) findViewById(R.id.fullscreen_content);
 
         File fileToRead=null;
         if(savedInstanceState==null){
@@ -129,19 +128,14 @@ public class ReadingActivity extends AppCompatActivity {
             }
         });
         // Set up the user interaction to manually show or hide the system UI.
-        View.OnTouchListener itemListener=new View.OnTouchListener() {
+        View.OnTouchListener toggleListener=new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return detector.onTouchEvent(event);
-                /*if(v instanceof InteractiveImageView){
-                InteractiveImageView imv= (InteractiveImageView)v ;
-                imv.panListener.onTouch(v,event);
-                }*/
-                //return true;
             }
         };// TODO: 5/4/2017 Rmember to set this listener on child item
-        mContentView.setOnTouchListener(itemListener);
-
+        BookPageAdapter adapter=(BookPageAdapter) mContentView.getAdapter();
+        adapter.setChildOnTouchListener(toggleListener);
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.

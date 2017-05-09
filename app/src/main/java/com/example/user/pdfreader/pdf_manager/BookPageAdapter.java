@@ -4,10 +4,12 @@ import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.example.user.pdfreader.InteractiveImageView;
 import com.example.user.pdfreader.R;
 import com.example.user.pdfreader.pdf_manager.PDFDisplayer;
 
@@ -22,6 +24,7 @@ public class BookPageAdapter extends PagerAdapter {
     private Context mContext;
     private PDFDisplayer mDisplayer;
     private Stack<View> recycleViewStack;
+    private View.OnTouchListener childListener;
     public BookPageAdapter(Context context,File fileToRead){
         this.mContext=context;
         this.mDisplayer=new PDFDisplayer(fileToRead);
@@ -37,8 +40,16 @@ public class BookPageAdapter extends PagerAdapter {
         }else{
             returnView=recycleViewStack.pop();
         }
-        ImageView imageView=(ImageView) returnView.findViewById(R.id.img_view);
+        InteractiveImageView imageView=(InteractiveImageView) returnView.findViewById(R.id.img_view);
         imageView.setImageBitmap(mDisplayer.updateView());
+        imageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                ((InteractiveImageView)v).panListener.onTouch(v,event);
+                childListener.onTouch(v,event);
+                return true;
+            }
+        });
         container.addView(returnView);
         return returnView;
 
@@ -63,6 +74,10 @@ public class BookPageAdapter extends PagerAdapter {
 
     public void closeRenderer(){
         mDisplayer.closeRenderer();
+    }
+
+    public void setChildOnTouchListener(View.OnTouchListener listener){
+        childListener=listener;
     }
 
 }

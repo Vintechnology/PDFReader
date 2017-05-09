@@ -16,11 +16,10 @@ import android.view.View;
 
 public class InteractiveImageView extends android.support.v7.widget.AppCompatImageView {
     Matrix matrix;
-    OnTouchListener panListener=new OnTouchListener() {
+    public OnTouchListener panListener=new OnTouchListener() {
 
         @Override
         public boolean onTouch(View v, MotionEvent event) {
-
             mScaleDetector.onTouchEvent(event);
 
             PointF curr = new PointF(event.getX(), event.getY());
@@ -138,7 +137,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
         matrix = new Matrix();
 
         m = new float[9];
-        //setOnTouchListener(panListener);
+        setOnTouchListener(panListener);
 
         setImageMatrix(matrix);
 

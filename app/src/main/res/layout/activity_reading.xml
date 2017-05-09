@@ -8,11 +8,12 @@
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
+
     <com.example.user.pdfreader.pdf_manager.BookViewPager
         android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
-
+        android:layout_height="match_parent"
+        android:background="@color/colorLightGrey" />
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
     <FrameLayout
@@ -37,13 +38,14 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="@string/previous_button" />
+
             <Button
                 android:id="@+id/next_button"
+                style="?metaButtonBarButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="@string/next_button"
-                style="?metaButtonBarButtonStyle"/>
+                android:text="@string/next_button" />
 
         </LinearLayout>
     </FrameLayout>
