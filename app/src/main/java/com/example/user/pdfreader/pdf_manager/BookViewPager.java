@@ -4,7 +4,12 @@ import android.content.Context;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
+import android.view.View;
+
+import com.example.user.pdfreader.InteractiveImageView;
+import com.example.user.pdfreader.R;
 
 /**
  * Created by user on 5/6/2017.
@@ -69,7 +74,9 @@ public class BookViewPager extends ViewPager {
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent ev) {
-        return super.onInterceptTouchEvent(ev);
+        View currentView=findViewWithTag(BookPageAdapter.TAG+getCurrentItem());
+        InteractiveImageView currentImageView = (InteractiveImageView) currentView.findViewById(R.id.img_view);
+        return !currentImageView.isDragable() && super.onInterceptTouchEvent(ev);
     }
 
     @Override

@@ -138,10 +138,9 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
         m = new float[9];
         setOnTouchListener(panListener);
-
+        setScaleType(ScaleType.MATRIX);
         setImageMatrix(matrix);
 
-        setScaleType(ScaleType.MATRIX);
     }
 
     public void setMaxZoom(float x) {
@@ -193,7 +192,8 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
                 matrix.postScale(mScaleFactor, mScaleFactor, detector.getFocusX(), detector.getFocusY());
 
             fixTrans();
-
+            Log.d("scale",""+saveScale);
+            Log.d("scale factor",""+mScaleFactor);
             return true;
 
         }
@@ -332,5 +332,10 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
         fixTrans();
 
+    }
+
+    public boolean isDragable(){
+        if(viewWidth>=origWidth*saveScale && viewHeight>=origHeight*saveScale)return false;
+        return true;
     }
 }

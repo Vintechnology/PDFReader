@@ -15,23 +15,22 @@ import java.io.File;
 
 public class PDFDisplayer {
     private boolean isClosed;
-    int currentPagePosition;
     private PdfRenderer renderer;
     private File pdfDocument;
     private PdfRenderer.Page currentPage;
     private ParcelFileDescriptor mFileDescriptor;
     public PDFDisplayer(File pdfDocument){
         isClosed=true;
-        currentPagePosition=0;
         this.pdfDocument=pdfDocument;
         openRenderer();
 
     }
 
-    public Bitmap updateView(){
+    public Bitmap updateView(int position){
+        position=Math.min(renderer.getPageCount()-1,Math.max(position,0));
         if(currentPage!=null) currentPage.close();
 
-        currentPage= renderer.openPage(currentPagePosition);
+        currentPage= renderer.openPage(position);
         Bitmap mBitmap= Bitmap.createBitmap(currentPage.getWidth(),currentPage.getHeight(), Bitmap.Config.ARGB_8888);
         mBitmap.eraseColor(Color.WHITE);
         currentPage.render(mBitmap,null,null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);

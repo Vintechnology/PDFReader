@@ -1,6 +1,8 @@
 package com.example.user.pdfreader.pdf_manager;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -21,6 +23,7 @@ import java.util.Stack;
  */
 
 public class BookPageAdapter extends PagerAdapter {
+    public static final String TAG="page child";
     private Context mContext;
     private PDFDisplayer mDisplayer;
     private Stack<View> recycleViewStack;
@@ -32,7 +35,6 @@ public class BookPageAdapter extends PagerAdapter {
     }
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        mDisplayer.currentPagePosition=position;
         View returnView;
         if(recycleViewStack.isEmpty()){
             LayoutInflater inflater= (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -41,7 +43,8 @@ public class BookPageAdapter extends PagerAdapter {
             returnView=recycleViewStack.pop();
         }
         InteractiveImageView imageView=(InteractiveImageView) returnView.findViewById(R.id.img_view);
-        imageView.setImageBitmap(mDisplayer.updateView());
+        Bitmap imgBitmap=mDisplayer.updateView(position);
+        imageView.setImageBitmap(imgBitmap);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -50,6 +53,7 @@ public class BookPageAdapter extends PagerAdapter {
                 return true;
             }
         });
+        returnView.setTag(TAG+position);
         container.addView(returnView);
         return returnView;
 
@@ -58,6 +62,8 @@ public class BookPageAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         View recycleView=(View)object;
+        ImageView imgView=(ImageView)recycleView.findViewById(R.id.img_view);
+        ((BitmapDrawable)imgView.getDrawable()).getBitmap().recycle();
         container.removeView(recycleView);
         recycleViewStack.push(recycleView);
     }
