@@ -11,6 +11,8 @@ import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
+import android.widget.TextView;
 
 import com.example.user.pdfreader.pdf_manager.BookPageAdapter;
 import com.example.user.pdfreader.pdf_manager.BookViewPager;
@@ -59,6 +61,7 @@ public class ReadingActivity extends AppCompatActivity {
         }
     };
     private View mControlsView;
+    private TextView mPageCounterBox;
     private final Runnable mShowPart2Runnable = new Runnable() {
         @Override
         public void run() {
@@ -91,6 +94,7 @@ public class ReadingActivity extends AppCompatActivity {
             return false;
         }
     };
+    private AlphaAnimation fadeAnimate;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,6 +105,7 @@ public class ReadingActivity extends AppCompatActivity {
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = (BookViewPager) findViewById(R.id.fullscreen_content);
+        mPageCounterBox= (TextView)findViewById(R.id.page_counter_box);
 
         File fileToRead=null;
         if(savedInstanceState==null){
@@ -118,6 +123,7 @@ public class ReadingActivity extends AppCompatActivity {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 toggle();
+                pageCounterToggle();
                 Log.d("Gesture","SingleTap");
                 return true;
             }
@@ -159,6 +165,28 @@ public class ReadingActivity extends AppCompatActivity {
         View previousButton=findViewById(R.id.previous_button);
         previousButton.setOnTouchListener(mDelayHideTouchListener);
         previousButton.setOnClickListener(buttonListener);
+
+        mPageCounterBox.setText(mContentView.getCurrentItem()+1+"/"+mContentView.getPageCount());
+
+        mContentView.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                mPageCounterBox.setText(mContentView.getCurrentItem()+1+"/"+mContentView.getPageCount());
+                pageCounterToggle();
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        fadeAnimate=new AlphaAnimation(mPageCounterBox.getAlpha(),0.0f);
+        fadeAnimate.setDuration(UI_ANIMATION_DELAY);
     }
 
     @Override
@@ -169,14 +197,23 @@ public class ReadingActivity extends AppCompatActivity {
         // created, to briefly hint to the user that UI controls
         // are available.
         delayedHide(100);
+        pageCounterToggle();
     }
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
         BookPageAdapter adapter=(BookPageAdapter)mContentView.getAdapter();
         adapter.closeRenderer();
-        Log.d("ReadingActivity","onDestroy");
+        Log.d("ReadingActivity","onStop");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        BookPageAdapter adapter=(BookPageAdapter)mContentView.getAdapter();
+        adapter.openRenderer();
+        Log.d("ReadingActivity","onRestart");
     }
 
     private void toggle() {
@@ -223,4 +260,38 @@ public class ReadingActivity extends AppCompatActivity {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
+
+    private void pageCounterToggle(){
+        switch(mPageCounterBox.getVisibility()){
+            case View.VISIBLE:
+                mHideHandler.removeCallbacks(hideCounter);
+                mHideHandler.removeCallbacks(fadeAnimateRunnable);
+                mHideHandler.postDelayed(fadeAnimateRunnable,AUTO_HIDE_DELAY_MILLIS-UI_ANIMATION_DELAY);
+                mHideHandler.postDelayed(hideCounter,AUTO_HIDE_DELAY_MILLIS);
+                break;
+            case View.GONE:
+                mHideHandler.post(showCounter);
+                mHideHandler.postDelayed(fadeAnimateRunnable,AUTO_HIDE_DELAY_MILLIS-UI_ANIMATION_DELAY);
+                mHideHandler.postDelayed(hideCounter,AUTO_HIDE_DELAY_MILLIS);
+                break;
+        }
+    }
+    private Runnable hideCounter=new Runnable() {
+        @Override
+        public void run() {
+            mPageCounterBox.setVisibility(View.GONE);
+        }
+    };
+    private Runnable showCounter=new Runnable() {
+        @Override
+        public void run() {
+            mPageCounterBox.setVisibility(View.VISIBLE);
+        }
+    };
+    private Runnable fadeAnimateRunnable=new Runnable() {
+        @Override
+        public void run() {
+            mPageCounterBox.startAnimation(fadeAnimate);
+        }
+    };
 }

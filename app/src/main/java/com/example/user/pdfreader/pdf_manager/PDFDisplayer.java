@@ -19,27 +19,32 @@ public class PDFDisplayer {
     private File pdfDocument;
     private PdfRenderer.Page currentPage;
     private ParcelFileDescriptor mFileDescriptor;
+    private Bitmap[] mBitmap = new Bitmap[2];
     public PDFDisplayer(File pdfDocument){
         isClosed=true;
         this.pdfDocument=pdfDocument;
         openRenderer();
-
     }
 
     public Bitmap updateView(int position){
         position=Math.min(renderer.getPageCount()-1,Math.max(position,0));
         if(currentPage!=null) currentPage.close();
-
+        int bitmapIndex=position%2;
         currentPage= renderer.openPage(position);
-        Bitmap mBitmap= Bitmap.createBitmap(currentPage.getWidth(),currentPage.getHeight(), Bitmap.Config.ARGB_8888);
-        mBitmap.eraseColor(Color.WHITE);
-        currentPage.render(mBitmap,null,null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
-        return mBitmap;
+        Bitmap bitmap=mBitmap[bitmapIndex];
+        if(bitmap==null)
+        bitmap= Bitmap.createBitmap(currentPage.getWidth(),currentPage.getHeight(), Bitmap.Config.ARGB_8888);
+        bitmap.eraseColor(Color.WHITE);
+        currentPage.render(bitmap,null,null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY);
+        return bitmap;
     }
 
     public void closeRenderer(){
         if(!isClosed){
-            currentPage.close();
+            if(currentPage!=null){
+                currentPage.close();
+                currentPage=null;
+            }
             renderer.close();
             try{
                 mFileDescriptor.close();

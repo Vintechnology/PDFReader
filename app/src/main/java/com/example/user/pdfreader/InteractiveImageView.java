@@ -106,7 +106,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
     static final int CLICK = 3;
 
-    float saveScale = 1f;
+    private float saveScale = 1f;
 
     protected float origWidth, origHeight;
 
@@ -165,33 +165,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
             float mScaleFactor = detector.getScaleFactor();
 
-            float origScale = saveScale;
-
-            saveScale *= mScaleFactor;
-
-            if (saveScale > maxScale) {
-
-                saveScale = maxScale;
-
-                mScaleFactor = maxScale / origScale;
-
-            } else if (saveScale < minScale) {
-
-                saveScale = minScale;
-
-                mScaleFactor = minScale / origScale;
-
-            }
-
-            if (origWidth * saveScale <= viewWidth || origHeight * saveScale <= viewHeight)
-
-                matrix.postScale(mScaleFactor, mScaleFactor, viewWidth / 2, viewHeight / 2);
-
-            else
-
-                matrix.postScale(mScaleFactor, mScaleFactor, detector.getFocusX(), detector.getFocusY());
-
-            fixTrans();
+            scaleImage(mScaleFactor,detector.getFocusX(),detector.getFocusY());
             Log.d("scale",""+saveScale);
             Log.d("scale factor",""+mScaleFactor);
             return true;
@@ -211,7 +185,6 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
         float fixTransX = getFixTrans(transX, viewWidth, origWidth * saveScale);
 
         float fixTransY = getFixTrans(transY, viewHeight, origHeight * saveScale);
-
         if (fixTransX != 0 || fixTransY != 0)
 
             matrix.postTranslate(fixTransX, fixTransY);
@@ -306,7 +279,8 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
             float scaleY = (float) viewHeight / (float) bmHeight;
 
-            scale = Math.min(scaleX, scaleY); // TODO: 5/6/2017 maybe need max 
+            scale = Math.min(scaleX, scaleY);
+            Log.d("scale:",""+scale);
 
             matrix.setScale(scale, scale);
 
@@ -335,7 +309,58 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
     }
 
     public boolean isDragable(){
-        if(viewWidth>=origWidth*saveScale && viewHeight>=origHeight*saveScale)return false;
-        return true;
+        return !(viewWidth >= origWidth * saveScale || atImageEnd() || atImageStart());
+
+    }
+
+    public float getMatrixValue(int value){
+        float[] matrixValue=new float[9];
+        matrix.getValues(matrixValue);
+        return matrixValue[value];
+    }
+
+    public boolean atImageEnd(){//in scale mode to account
+        float currXPos=getMatrixValue(Matrix.MTRANS_X);
+        float maxOffset=viewWidth-origWidth*saveScale;
+        return currXPos<=maxOffset;
+    }
+    public boolean atImageStart(){//in scale mode to account
+        float currXPos=getMatrixValue(Matrix.MTRANS_X);
+        float minOffset=0;
+        return currXPos>=minOffset;
+    }
+
+    public void scaleImage(float mScaleFactor,float focusX,float focusY){
+        float origScale = saveScale;
+
+        saveScale *= mScaleFactor;
+
+        if (saveScale > maxScale) {
+
+            saveScale = maxScale;
+
+            mScaleFactor = maxScale / origScale;
+
+        } else if (saveScale < minScale) {
+
+            saveScale = minScale;
+
+            mScaleFactor = minScale / origScale;
+
+        }
+
+        if (origWidth * saveScale <= viewWidth || origHeight * saveScale <= viewHeight)
+
+            matrix.postScale(mScaleFactor, mScaleFactor, viewWidth / 2, viewHeight / 2);
+
+        else
+
+            matrix.postScale(mScaleFactor, mScaleFactor, focusX, focusY);
+
+        fixTrans();
+    }
+    public void toImageStart(){
+        float currXPos=getMatrixValue(Matrix.MTRANS_X);
+        matrix.postTranslate(-currXPos,0);
     }
 }

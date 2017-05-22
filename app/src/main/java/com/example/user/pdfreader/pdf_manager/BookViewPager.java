@@ -16,37 +16,15 @@ import com.example.user.pdfreader.R;
  */
 
 public class BookViewPager extends ViewPager {
-    private int currentPagePosition;
     private int pageCount;
     public BookViewPager(Context context) {
         super(context);
-        shareContructor();
     }
 
     public BookViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
-        shareContructor();
     }
 
-    private void shareContructor(){
-        currentPagePosition=0;
-        addOnPageChangeListener(new OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                currentPagePosition=position;
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-    }
 
     @Override
     public void setAdapter(PagerAdapter adapter) {
@@ -55,13 +33,13 @@ public class BookViewPager extends ViewPager {
     }
 
     public void nextPage(){
-        if(currentPagePosition<pageCount-1)
-        setCurrentItem(currentPagePosition+1,true);
+        if(getCurrentItem()<pageCount-1)
+        setCurrentItem(getCurrentItem()+1,true);
     }
 
     public void previousPage(){
-        if(currentPagePosition>0){
-            setCurrentItem(currentPagePosition-1,true);
+        if(getCurrentItem()>0){
+            setCurrentItem(getCurrentItem()-1,true);
         }
     }
 
@@ -82,5 +60,8 @@ public class BookViewPager extends ViewPager {
     @Override
     public boolean onTouchEvent(MotionEvent ev) {
         return super.onTouchEvent(ev);
+    }
+    public int getPageCount(){
+        return pageCount;
     }
 }

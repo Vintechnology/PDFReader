@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -54,19 +55,7 @@ public class MainActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(Void aVoid) {
             if(fileList!=null && fileList.size()>0){
-                ArrayAdapter<String> adapter=new ArrayAdapter<String>(getApplicationContext(),android.R.layout.simple_list_item_1){
-                    @NonNull
-                    @Override
-                    public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-                        View view= super.getView(position, convertView, parent);
-                        TextView text=(TextView)view.findViewById(android.R.id.text1);
-                        text.setTextColor(Color.BLACK);
-                        return view;
-                    }
-                };
-                for(File file :fileList){
-                    adapter.add(file.getName());
-                }
+                BookListArrayAdapter adapter=new BookListArrayAdapter(getApplicationContext(),fileList);
                 listView.setAdapter(adapter);
             }
         }
@@ -88,5 +77,18 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("MainActivity Life Cycle","OnStop");
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        Log.d("MainActivity Life Cycle","OnRestart");
+    }
+
 }
 

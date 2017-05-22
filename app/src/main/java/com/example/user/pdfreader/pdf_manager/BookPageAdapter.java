@@ -44,6 +44,7 @@ public class BookPageAdapter extends PagerAdapter {
         }
         InteractiveImageView imageView=(InteractiveImageView) returnView.findViewById(R.id.img_view);
         Bitmap imgBitmap=mDisplayer.updateView(position);
+
         imageView.setImageBitmap(imgBitmap);
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -62,8 +63,6 @@ public class BookPageAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         View recycleView=(View)object;
-        ImageView imgView=(ImageView)recycleView.findViewById(R.id.img_view);
-        ((BitmapDrawable)imgView.getDrawable()).getBitmap().recycle();
         container.removeView(recycleView);
         recycleViewStack.push(recycleView);
     }
@@ -80,6 +79,10 @@ public class BookPageAdapter extends PagerAdapter {
 
     public void closeRenderer(){
         mDisplayer.closeRenderer();
+    }
+
+    public void openRenderer(){
+        mDisplayer.openRenderer();
     }
 
     public void setChildOnTouchListener(View.OnTouchListener listener){

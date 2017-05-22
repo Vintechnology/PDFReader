@@ -8,7 +8,6 @@
     <!-- The primary full-screen view. This can be replaced with whatever view
          is needed to present your content, e.g. VideoView, SurfaceView,
          TextureView, etc. -->
-
     <com.example.user.pdfreader.pdf_manager.BookViewPager
         android:id="@+id/fullscreen_content"
         android:layout_width="match_parent"
@@ -16,6 +15,22 @@
         android:background="@color/colorLightGrey" />
     <!-- This FrameLayout insets its children based on system windows using
          android:fitsSystemWindows. -->
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
+    <TextView
+        android:id="@+id/page_counter_box"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textStyle="bold"
+        android:textSize="25sp"
+        android:background="@drawable/page_counter_layout"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:text="1/10"/>
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -49,5 +64,6 @@
 
         </LinearLayout>
     </FrameLayout>
+</RelativeLayout>
 
 </FrameLayout>
