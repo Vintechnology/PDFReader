@@ -1,11 +1,14 @@
 package com.example.user.pdfreader;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
 import android.graphics.Matrix;
 import android.graphics.PointF;
 import android.graphics.drawable.Drawable;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -15,7 +18,8 @@ import android.view.View;
  */
 
 public class InteractiveImageView extends android.support.v7.widget.AppCompatImageView {
-    Matrix matrix;
+    protected  Matrix matrix;
+    private static float globalScale=1f;
     public OnTouchListener panListener=new OnTouchListener() {
 
         @Override
@@ -106,7 +110,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
     static final int CLICK = 3;
 
-    private float saveScale = 1f;
+    protected float saveScale = 1f;
 
     protected float origWidth, origHeight;
 
@@ -119,6 +123,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
     public InteractiveImageView(Context context) {
         super(context);
         sharedConstructing(context);
+
     }
 
     public InteractiveImageView(Context context, AttributeSet attrs) {
@@ -149,6 +154,10 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
     }
 
+    public void setMinZoon(float x){
+        minScale=x;
+    }
+
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
 
         @Override
@@ -166,6 +175,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
             float mScaleFactor = detector.getScaleFactor();
 
             scaleImage(mScaleFactor,detector.getFocusX(),detector.getFocusY());
+            globalScale=saveScale;
             Log.d("scale",""+saveScale);
             Log.d("scale factor",""+mScaleFactor);
             return true;
@@ -237,13 +247,12 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-
+        Log.d("OnMeasure","Called");
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
 
         viewWidth = MeasureSpec.getSize(widthMeasureSpec);
 
         viewHeight = MeasureSpec.getSize(heightMeasureSpec);
-
         //
         // Rescales image on rotation
         //
@@ -257,11 +266,9 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
         oldMeasuredWidth = viewWidth;
 
-        if (saveScale == 1) {
+        if (saveScale == minScale) {
 
             //Fit to screen.
-
-            float scale;
 
             Drawable drawable = getDrawable();
 
@@ -275,30 +282,34 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
             Log.d("bmSize", "bmWidth: " + bmWidth + " bmHeight : " + bmHeight);
 
-            float scaleX = (float) viewWidth / (float) bmWidth;
+            float scaleX =  (float)viewWidth / (float) bmWidth;
 
-            float scaleY = (float) viewHeight / (float) bmHeight;
+            switch (getResources().getConfiguration().orientation){
+                case Configuration.ORIENTATION_LANDSCAPE:
+                    matrix.setScale(scaleX,scaleX);
+                    origWidth=viewWidth;
+                    origHeight=bmHeight*scaleX;
+                    break;
+                case Configuration.ORIENTATION_PORTRAIT:
+                    matrix.setScale(scaleX, scaleX);
 
-            scale = Math.min(scaleX, scaleY);
-            Log.d("scale:",""+scale);
+                    // Center the image
 
-            matrix.setScale(scale, scale);
+                    float redundantYSpace = (float) viewHeight - (scaleX * (float) bmHeight);
 
-            // Center the image
+                    redundantYSpace /= (float) 2;
 
-            float redundantYSpace = (float) viewHeight - (scale * (float) bmHeight);
 
-            float redundantXSpace = (float) viewWidth - (scale * (float) bmWidth);
+                    matrix.postTranslate(0, redundantYSpace);
 
-            redundantYSpace /= (float) 2;
+                    origWidth = viewWidth;
 
-            redundantXSpace /= (float) 2;
+                    origHeight = viewHeight - 2 * redundantYSpace;
+                    break;
+            }
 
-            matrix.postTranslate(redundantXSpace, redundantYSpace);
-
-            origWidth = viewWidth - 2 * redundantXSpace;
-
-            origHeight = viewHeight - 2 * redundantYSpace;
+            minScale=1f;
+            saveScale=minScale;
 
             setImageMatrix(matrix);
 
@@ -308,8 +319,8 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
     }
 
-    public boolean isDragable(){
-        return !(viewWidth >= origWidth * saveScale || atImageEnd() || atImageStart());
+    public boolean isDraggable(){
+        return !(viewWidth >= origWidth * saveScale && (atImageEnd() || atImageStart()));
 
     }
 
@@ -359,8 +370,10 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
         fixTrans();
     }
-    public void toImageStart(){
-        float currXPos=getMatrixValue(Matrix.MTRANS_X);
-        matrix.postTranslate(-currXPos,0);
+
+    public void syncMatrix(){
+        scaleImage(globalScale/saveScale,0,0);
+        setImageMatrix(matrix);
     }
+
 }

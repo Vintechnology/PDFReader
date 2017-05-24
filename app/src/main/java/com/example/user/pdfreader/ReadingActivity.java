@@ -176,6 +176,9 @@ public class ReadingActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
+                View currentView=mContentView.findViewWithTag(BookPageAdapter.TAG+position);
+                InteractiveImageView currentImageView = (InteractiveImageView) currentView.findViewById(R.id.img_view);
+                currentImageView.syncMatrix();
                 mPageCounterBox.setText(mContentView.getCurrentItem()+1+"/"+mContentView.getPageCount());
                 pageCounterToggle();
             }

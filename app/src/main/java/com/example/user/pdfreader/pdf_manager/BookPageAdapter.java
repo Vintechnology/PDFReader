@@ -56,6 +56,7 @@ public class BookPageAdapter extends PagerAdapter {
         });
         returnView.setTag(TAG+position);
         container.addView(returnView);
+        returnView.requestFocus();
         return returnView;
 
     }

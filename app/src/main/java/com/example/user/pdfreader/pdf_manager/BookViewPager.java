@@ -54,7 +54,7 @@ public class BookViewPager extends ViewPager {
     public boolean onInterceptTouchEvent(MotionEvent ev) {
         View currentView=findViewWithTag(BookPageAdapter.TAG+getCurrentItem());
         InteractiveImageView currentImageView = (InteractiveImageView) currentView.findViewById(R.id.img_view);
-        return !currentImageView.isDragable() && super.onInterceptTouchEvent(ev);
+        return !currentImageView.isDraggable() && super.onInterceptTouchEvent(ev);
     }
 
     @Override
