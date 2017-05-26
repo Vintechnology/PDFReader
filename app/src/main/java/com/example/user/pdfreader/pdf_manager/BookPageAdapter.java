@@ -64,6 +64,8 @@ public class BookPageAdapter extends PagerAdapter {
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
         View recycleView=(View)object;
+        ImageView imgView=(ImageView) recycleView.findViewById(R.id.img_view);
+        ((BitmapDrawable)imgView.getDrawable()).getBitmap().recycle();
         container.removeView(recycleView);
         recycleViewStack.push(recycleView);
     }

@@ -320,8 +320,8 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
     }
 
     public boolean isDraggable(){
-        return !(viewWidth >= origWidth * saveScale && (atImageEnd() || atImageStart()));
-
+        if(viewWidth >= origWidth * saveScale)return false;
+        return !(atImageEnd() || atImageStart());
     }
 
     public float getMatrixValue(int value){
@@ -360,9 +360,14 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
         }
 
-        if (origWidth * saveScale <= viewWidth || origHeight * saveScale <= viewHeight)
-
+        if (origWidth * saveScale < viewWidth || origHeight * saveScale < viewHeight){
             matrix.postScale(mScaleFactor, mScaleFactor, viewWidth / 2, viewHeight / 2);
+            //Center image after scale
+            float redundantYSpace=(viewHeight-origHeight*saveScale)/2f;
+            float ySpace=getMatrixValue(Matrix.MTRANS_Y);
+            redundantYSpace-=ySpace;
+            matrix.postTranslate(-getMatrixValue(Matrix.MTRANS_X),redundantYSpace);
+        }
 
         else
 
@@ -372,6 +377,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
     }
 
     public void syncMatrix(){
+        Log.d("Sync Matrix","Called");
         scaleImage(globalScale/saveScale,0,0);
         setImageMatrix(matrix);
     }
