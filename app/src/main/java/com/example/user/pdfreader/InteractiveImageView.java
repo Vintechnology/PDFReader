@@ -321,7 +321,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
     public boolean isDraggable(){
         if(viewWidth >= origWidth * saveScale)return false;
-        return !(atImageEnd() || atImageStart());
+        return true;
     }
 
     public float getMatrixValue(int value){
