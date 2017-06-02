@@ -1,6 +1,7 @@
 package com.example.user.pdfreader;
 
 import android.annotation.SuppressLint;
+import android.support.v4.app.NavUtils;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -101,6 +102,7 @@ public class ReadingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.d("OnCreate","DEBUG");
         setContentView(R.layout.activity_reading);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
@@ -116,7 +118,7 @@ public class ReadingActivity extends AppCompatActivity {
         }else{
             fileToRead=(File)savedInstanceState.get(MainActivity.FILE_TO_READ);
         }
-
+        setTitle(fileToRead.getName());
         mContentView.setAdapter(new BookPageAdapter(this,fileToRead));
 
         final GestureDetectorCompat detector=new GestureDetectorCompat(this,new GestureDetector.SimpleOnGestureListener(){
@@ -193,6 +195,12 @@ public class ReadingActivity extends AppCompatActivity {
     }
 
     @Override
+    public boolean onSupportNavigateUp() {
+        NavUtils.navigateUpFromSameTask(this);
+        return super.onSupportNavigateUp();
+    }
+
+    @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
 
@@ -212,8 +220,8 @@ public class ReadingActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onRestart() {
-        super.onRestart();
+    protected void onStart() {
+        super.onStart();
         BookPageAdapter adapter=(BookPageAdapter)mContentView.getAdapter();
         adapter.openRenderer();
         Log.d("ReadingActivity","onRestart");

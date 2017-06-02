@@ -94,50 +94,46 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
     };
     // We can be in one of these 3 states
-    static final int NONE = 0;
-    static final int DRAG = 1;
-    static final int ZOOM = 2;
+    public static final int NONE = 0;
+    public static final int DRAG = 1;
+    public static final int ZOOM = 2;
 
-    int mode = NONE;
+    private int mode = NONE;
 
     // Remember some things for zooming
-    PointF last = new PointF();
-    PointF start = new PointF();
-    float minScale = 1f;
-    float maxScale = 3f;
-    float[] m;
-    int viewWidth, viewHeight;
+    private PointF last = new PointF();
+    private PointF start = new PointF();
+    private float minScale = 1f;
+    private float maxScale = 3f;
+    private float[] m;
+    private int viewWidth, viewHeight;
 
-    static final int CLICK = 3;
+    private static final int CLICK = 3;
 
     protected float saveScale = 1f;
 
     protected float origWidth, origHeight;
 
-    int oldMeasuredWidth, oldMeasuredHeight;
+    private int oldMeasuredWidth, oldMeasuredHeight;
 
-    ScaleGestureDetector mScaleDetector;
-
-    Context context;
+    private ScaleGestureDetector mScaleDetector;
 
     public InteractiveImageView(Context context) {
         super(context);
-        sharedConstructing(context);
+        sharedConstructing();
 
     }
 
     public InteractiveImageView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        sharedConstructing(context);
+        sharedConstructing();
     }
 
-    private void sharedConstructing(Context context) {
+    private void sharedConstructing() {
 
         super.setClickable(true);
 
-        this.context = context;
-
-        mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+        mScaleDetector = new ScaleGestureDetector(getContext(), new ScaleListener());
 
         matrix = new Matrix();
 
@@ -256,7 +252,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
         //
         // Rescales image on rotation
         //
-        if (oldMeasuredHeight == viewWidth && oldMeasuredHeight == viewHeight
+        if (oldMeasuredWidth == viewWidth && oldMeasuredHeight == viewHeight
 
                 || viewWidth == 0 || viewHeight == 0)
 
@@ -266,56 +262,7 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
 
         oldMeasuredWidth = viewWidth;
 
-        if (saveScale == minScale) {
-
-            //Fit to screen.
-
-            Drawable drawable = getDrawable();
-
-            if (drawable == null || drawable.getIntrinsicWidth() == 0 || drawable.getIntrinsicHeight() == 0)
-
-                return;
-
-            int bmWidth = drawable.getIntrinsicWidth();
-
-            int bmHeight = drawable.getIntrinsicHeight();
-
-            Log.d("bmSize", "bmWidth: " + bmWidth + " bmHeight : " + bmHeight);
-
-            float scaleX =  (float)viewWidth / (float) bmWidth;
-
-            switch (getResources().getConfiguration().orientation){
-                case Configuration.ORIENTATION_LANDSCAPE:
-                    matrix.setScale(scaleX,scaleX);
-                    origWidth=viewWidth;
-                    origHeight=bmHeight*scaleX;
-                    break;
-                case Configuration.ORIENTATION_PORTRAIT:
-                    matrix.setScale(scaleX, scaleX);
-
-                    // Center the image
-
-                    float redundantYSpace = (float) viewHeight - (scaleX * (float) bmHeight);
-
-                    redundantYSpace /= (float) 2;
-
-
-                    matrix.postTranslate(0, redundantYSpace);
-
-                    origWidth = viewWidth;
-
-                    origHeight = viewHeight - 2 * redundantYSpace;
-                    break;
-            }
-
-            minScale=1f;
-            saveScale=minScale;
-
-            setImageMatrix(matrix);
-
-        }
-
-        fixTrans();
+        fitImageToView();
 
     }
 
@@ -381,5 +328,57 @@ public class InteractiveImageView extends android.support.v7.widget.AppCompatIma
         scaleImage(globalScale/saveScale,0,0);
         setImageMatrix(matrix);
     }
+
+    public void fitImageToView(){
+        if (saveScale == minScale) {
+
+        //Fit to screen.
+
+        Drawable drawable = getDrawable();
+
+        if (drawable == null || drawable.getIntrinsicWidth() == 0 || drawable.getIntrinsicHeight() == 0)
+
+            return;
+
+        int bmWidth = drawable.getIntrinsicWidth();
+
+        int bmHeight = drawable.getIntrinsicHeight();
+
+        Log.d("bmSize", "bmWidth: " + bmWidth + " bmHeight : " + bmHeight);
+
+        float scaleX =  (float)viewWidth / (float) bmWidth;
+
+        switch (getResources().getConfiguration().orientation){
+            case Configuration.ORIENTATION_LANDSCAPE:
+                matrix.setScale(scaleX,scaleX);
+                origWidth=viewWidth;
+                origHeight=bmHeight*scaleX;
+                break;
+            case Configuration.ORIENTATION_PORTRAIT:
+                matrix.setScale(scaleX, scaleX);
+
+                // Center the image
+
+                float redundantYSpace = (float) viewHeight - (scaleX * (float) bmHeight);
+
+                redundantYSpace /= (float) 2;
+
+
+                matrix.postTranslate(0, redundantYSpace);
+
+                origWidth = viewWidth;
+
+                origHeight = viewHeight - 2 * redundantYSpace;
+                break;
+        }
+
+        minScale=1f;
+        saveScale=minScale;
+
+        setImageMatrix(matrix);
+
+    }
+
+        fixTrans();}
 
 }

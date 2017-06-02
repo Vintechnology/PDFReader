@@ -1,5 +1,6 @@
 package com.example.user.pdfreader.pdf_manager;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
@@ -19,9 +20,12 @@ public class PDFDisplayer {
     private File pdfDocument;
     private PdfRenderer.Page currentPage;
     private ParcelFileDescriptor mFileDescriptor;
-    public PDFDisplayer(File pdfDocument){
+    private Context context;
+    private static final int DEFAULT_PDF_DPI=72;
+    public PDFDisplayer(File pdfDocument,Context context){
         isClosed=true;
         this.pdfDocument=pdfDocument;
+        this.context=context;
         openRenderer();
     }
 

@@ -30,7 +30,7 @@ public class BookPageAdapter extends PagerAdapter {
     private View.OnTouchListener childListener;
     public BookPageAdapter(Context context,File fileToRead){
         this.mContext=context;
-        this.mDisplayer=new PDFDisplayer(fileToRead);
+        this.mDisplayer=new PDFDisplayer(fileToRead,context);
         this.recycleViewStack= new Stack<>();
     }
     @Override
@@ -46,6 +46,7 @@ public class BookPageAdapter extends PagerAdapter {
         Bitmap imgBitmap=mDisplayer.updateView(position);
 
         imageView.setImageBitmap(imgBitmap);
+        imageView.fitImageToView();
         imageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
