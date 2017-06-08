@@ -1,6 +1,7 @@
 package com.example.user.pdfreader;
 
 import android.annotation.SuppressLint;
+import android.content.SharedPreferences;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
@@ -10,11 +11,16 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.widget.TextView;
 
+import com.example.user.pdfreader.bookmark.BookmarkDatabaseManager;
+import com.example.user.pdfreader.bookmark.BookmarkUtils;
 import com.example.user.pdfreader.pdf_manager.BookPageAdapter;
 import com.example.user.pdfreader.pdf_manager.BookViewPager;
 
@@ -96,37 +102,41 @@ public class ReadingActivity extends AppCompatActivity {
         }
     };
     private AlphaAnimation fadeAnimate;
+    private BookmarkDatabaseManager databaseManager;
+    private String fileName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("OnCreate","DEBUG");
+        Log.d("OnCreate", "DEBUG");
         setContentView(R.layout.activity_reading);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         mVisible = true;
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = (BookViewPager) findViewById(R.id.fullscreen_content);
-        mPageCounterBox= (TextView)findViewById(R.id.page_counter_box);
+        mPageCounterBox = (TextView) findViewById(R.id.page_counter_box);
 
-        File fileToRead=null;
-        if(savedInstanceState==null){
-            Bundle bundle= getIntent().getExtras();
-            if(bundle!=null){
-                fileToRead=(File) bundle.get(MainActivity.FILE_TO_READ);
+        File fileToRead = null;
+        if (savedInstanceState == null) {
+            Bundle bundle = getIntent().getExtras();
+            if (bundle != null) {
+                fileToRead = (File) bundle.get(MainActivity.FILE_TO_READ);
             }
-        }else{
-            fileToRead=(File)savedInstanceState.get(MainActivity.FILE_TO_READ);
+        } else {
+            fileToRead = (File) savedInstanceState.get(MainActivity.FILE_TO_READ);
         }
         setTitle(fileToRead.getName());
-        mContentView.setAdapter(new BookPageAdapter(this,fileToRead));
+        fileName=fileToRead.getName();
+        mContentView.setAdapter(new BookPageAdapter(this, fileToRead));
+        databaseManager=new BookmarkDatabaseManager(this);
 
-        final GestureDetectorCompat detector=new GestureDetectorCompat(this,new GestureDetector.SimpleOnGestureListener(){
+        final GestureDetectorCompat detector = new GestureDetectorCompat(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
                 toggle();
                 pageCounterToggle();
-                Log.d("Gesture","SingleTap");
+                Log.d("Gesture", "SingleTap");
                 return true;
             }
 
@@ -136,22 +146,22 @@ public class ReadingActivity extends AppCompatActivity {
             }
         });
         // Set up the user interaction to manually show or hide the system UI.
-        View.OnTouchListener toggleListener=new View.OnTouchListener() {
+        View.OnTouchListener toggleListener = new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 return detector.onTouchEvent(event);
             }
         };// TODO: 5/4/2017 Rmember to set this listener on child item
-        BookPageAdapter adapter=(BookPageAdapter) mContentView.getAdapter();
+        BookPageAdapter adapter = (BookPageAdapter) mContentView.getAdapter();
         adapter.setChildOnTouchListener(toggleListener);
         // Upon interacting with UI controls, delay any scheduled hide()
         // operations to prevent the jarring behavior of controls going away
         // while interacting with the UI.
-        View.OnClickListener buttonListener=new View.OnClickListener() {
+        View.OnClickListener buttonListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int viewId=v.getId();
-                switch(viewId){
+                int viewId = v.getId();
+                switch (viewId) {
                     case R.id.next_button:// TODO: 5/5/2017 sthg here
                         mContentView.nextPage();
                         break;
@@ -161,14 +171,14 @@ public class ReadingActivity extends AppCompatActivity {
                 }
             }
         };
-        View nextButton=findViewById(R.id.next_button);
+        View nextButton = findViewById(R.id.next_button);
         nextButton.setOnTouchListener(mDelayHideTouchListener);
         nextButton.setOnClickListener(buttonListener);
-        View previousButton=findViewById(R.id.previous_button);
+        View previousButton = findViewById(R.id.previous_button);
         previousButton.setOnTouchListener(mDelayHideTouchListener);
         previousButton.setOnClickListener(buttonListener);
 
-        mPageCounterBox.setText(mContentView.getCurrentItem()+1+"/"+mContentView.getPageCount());
+        mPageCounterBox.setText(mContentView.getCurrentItem() + 1 + "/" + mContentView.getPageCount());
 
         mContentView.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -178,10 +188,10 @@ public class ReadingActivity extends AppCompatActivity {
 
             @Override
             public void onPageSelected(int position) {
-                View currentView=mContentView.findViewWithTag(BookPageAdapter.TAG+position);
+                View currentView = mContentView.findViewWithTag(BookPageAdapter.TAG + position);
                 InteractiveImageView currentImageView = (InteractiveImageView) currentView.findViewById(R.id.img_view);
                 currentImageView.syncMatrix();
-                mPageCounterBox.setText(mContentView.getCurrentItem()+1+"/"+mContentView.getPageCount());
+                mPageCounterBox.setText(mContentView.getCurrentItem() + 1 + "/" + mContentView.getPageCount());
                 pageCounterToggle();
             }
 
@@ -190,7 +200,7 @@ public class ReadingActivity extends AppCompatActivity {
 
             }
         });
-        fadeAnimate=new AlphaAnimation(mPageCounterBox.getAlpha(),0.0f);
+        fadeAnimate = new AlphaAnimation(mPageCounterBox.getAlpha(), 0.0f);
         fadeAnimate.setDuration(UI_ANIMATION_DELAY);
     }
 
@@ -214,17 +224,17 @@ public class ReadingActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        BookPageAdapter adapter=(BookPageAdapter)mContentView.getAdapter();
+        BookPageAdapter adapter = (BookPageAdapter) mContentView.getAdapter();
         adapter.closeRenderer();
-        Log.d("ReadingActivity","onStop");
+        Log.d("ReadingActivity", "onStop");
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        BookPageAdapter adapter=(BookPageAdapter)mContentView.getAdapter();
+        BookPageAdapter adapter = (BookPageAdapter) mContentView.getAdapter();
         adapter.openRenderer();
-        Log.d("ReadingActivity","onRestart");
+        Log.d("ReadingActivity", "onRestart");
     }
 
     private void toggle() {
@@ -254,8 +264,8 @@ public class ReadingActivity extends AppCompatActivity {
     private void show() {
         // Show the system bar
         mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                                        | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
+                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
         mVisible = true;
 
         // Schedule a runnable to display UI elements after a delay
@@ -272,37 +282,54 @@ public class ReadingActivity extends AppCompatActivity {
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
-    private void pageCounterToggle(){
-        switch(mPageCounterBox.getVisibility()){
+    private void pageCounterToggle() {
+        switch (mPageCounterBox.getVisibility()) {
             case View.VISIBLE:
                 mHideHandler.removeCallbacks(hideCounter);
                 mHideHandler.removeCallbacks(fadeAnimateRunnable);
-                mHideHandler.postDelayed(fadeAnimateRunnable,AUTO_HIDE_DELAY_MILLIS-UI_ANIMATION_DELAY);
-                mHideHandler.postDelayed(hideCounter,AUTO_HIDE_DELAY_MILLIS);
+                mHideHandler.postDelayed(fadeAnimateRunnable, AUTO_HIDE_DELAY_MILLIS - UI_ANIMATION_DELAY);
+                mHideHandler.postDelayed(hideCounter, AUTO_HIDE_DELAY_MILLIS);
                 break;
             case View.GONE:
                 mHideHandler.post(showCounter);
-                mHideHandler.postDelayed(fadeAnimateRunnable,AUTO_HIDE_DELAY_MILLIS-UI_ANIMATION_DELAY);
-                mHideHandler.postDelayed(hideCounter,AUTO_HIDE_DELAY_MILLIS);
+                mHideHandler.postDelayed(fadeAnimateRunnable, AUTO_HIDE_DELAY_MILLIS - UI_ANIMATION_DELAY);
+                mHideHandler.postDelayed(hideCounter, AUTO_HIDE_DELAY_MILLIS);
                 break;
         }
     }
-    private Runnable hideCounter=new Runnable() {
+
+    private Runnable hideCounter = new Runnable() {
         @Override
         public void run() {
             mPageCounterBox.setVisibility(View.GONE);
         }
     };
-    private Runnable showCounter=new Runnable() {
+    private Runnable showCounter = new Runnable() {
         @Override
         public void run() {
             mPageCounterBox.setVisibility(View.VISIBLE);
         }
     };
-    private Runnable fadeAnimateRunnable=new Runnable() {
+    private Runnable fadeAnimateRunnable = new Runnable() {
         @Override
         public void run() {
             mPageCounterBox.startAnimation(fadeAnimate);
         }
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater menuInflater=getMenuInflater();
+        menuInflater.inflate(R.menu.reading_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if(item.getItemId()==R.id.bookmark){
+            BookmarkUtils.showAllBookmark(this,databaseManager,Integer.parseInt(mPageCounterBox.getText().toString())
+                                        ,mContentView,fileName);
+        }
+        return super.onOptionsItemSelected(item);
+    }
 }

@@ -23,8 +23,6 @@ import java.util.ArrayList;
 
 public class BookListArrayAdapter extends ArrayAdapter<File> {
     private ArrayList<File> fileList;
-    private PdfRenderer mRenderer;
-    private ParcelFileDescriptor mDescriptor;
 
     public BookListArrayAdapter(Context context, ArrayList<File> fileList){
         super(context,0);
