@@ -41,7 +41,7 @@ public class BookmarkUtils {
         // TODO: 6/5/2017 get user text and set page + add bookmark
         TextView page= (TextView)layout.findViewById(R.id.bookmark_page);
         TextView file=(TextView)layout.findViewById(R.id.bookmark_file);
-        page.setText(currentPage);
+        page.setText(String.valueOf(currentPage));
         file.setText(fileName);
         new AlertDialog.Builder(context).setView(layout).setTitle("Add New Bookmark").setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override

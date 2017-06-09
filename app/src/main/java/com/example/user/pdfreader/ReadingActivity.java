@@ -1,7 +1,6 @@
 package com.example.user.pdfreader;
 
 import android.annotation.SuppressLint;
-import android.content.SharedPreferences;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
@@ -327,7 +326,7 @@ public class ReadingActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if(item.getItemId()==R.id.bookmark){
-            BookmarkUtils.showAllBookmark(this,databaseManager,Integer.parseInt(mPageCounterBox.getText().toString())
+            BookmarkUtils.showAllBookmark(this,databaseManager,mContentView.getCurrentItem()+1
                                         ,mContentView,fileName);
         }
         return super.onOptionsItemSelected(item);
