@@ -20,7 +20,7 @@ import java.util.ArrayList;
 public class BookmarkUtils {
     public static void showAllBookmark(final Context context,final BookmarkDatabaseManager db, final int currentPage, final BookViewPager pager,final String fileName){
         ArrayList<Bookmark> array=db.getAllBookmark(fileName);
-        final BookmarkArrayAdapter adapter=new BookmarkArrayAdapter(context, array);
+        final BookmarkArrayAdapter adapter=new BookmarkArrayAdapter(context, array, db);
         new AlertDialog.Builder(context).setAdapter(adapter, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -35,10 +35,10 @@ public class BookmarkUtils {
         }).setNegativeButton("CANCEL",null).setTitle("Bookmark Menu").show();
     }
 
-    public static void showAddBookmarkDialog(final BookmarkDatabaseManager db, final int currentPage,final BookmarkArrayAdapter adapter, Context context,final String fileName){
+    public static void showAddBookmarkDialog(final BookmarkDatabaseManager db, final int currentPage,
+                                             final BookmarkArrayAdapter adapter, Context context,final String fileName){
         View layout= LayoutInflater.from(context).inflate(R.layout.add_bookmark_dialog_layout,null);
         final EditText note=(EditText)layout.findViewById(R.id.bookmark_note);
-        // TODO: 6/5/2017 get user text and set page + add bookmark
         TextView page= (TextView)layout.findViewById(R.id.bookmark_page);
         TextView file=(TextView)layout.findViewById(R.id.bookmark_file);
         page.setText(String.valueOf(currentPage));
@@ -51,5 +51,10 @@ public class BookmarkUtils {
             }
         }).show();
 
+    }
+
+    public static void deleteBookmark( BookmarkDatabaseManager db,Bookmark deletedBookmark,BookmarkArrayAdapter adapter) {
+        adapter.remove(deletedBookmark);
+        db.deleteBookmark(deletedBookmark);
     }
 }
