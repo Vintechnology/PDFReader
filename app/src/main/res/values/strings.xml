@@ -7,4 +7,5 @@
     <string name="bookmark_page_text">Page: </string>
     <string name="bookmark_note_text">Note: </string>
     <string name="bookmark_file_text">File: </string>
+    <string name="empty_file_string">There are no file</string>
 </resources>

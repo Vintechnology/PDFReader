@@ -1,22 +1,27 @@
 package com.example.user.pdfreader;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.support.v4.app.NavUtils;
 import android.support.v4.view.GestureDetectorCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.user.pdfreader.bookmark.BookmarkDatabaseManager;
 import com.example.user.pdfreader.bookmark.BookmarkUtils;
@@ -115,6 +120,7 @@ public class ReadingActivity extends AppCompatActivity {
         mControlsView = findViewById(R.id.fullscreen_content_controls);
         mContentView = (BookViewPager) findViewById(R.id.fullscreen_content);
         mPageCounterBox = (TextView) findViewById(R.id.page_counter_box);
+        mPageCounterBox.setOnClickListener(counterBoxListener);
 
         File fileToRead = null;
         if (savedInstanceState == null) {
@@ -331,4 +337,25 @@ public class ReadingActivity extends AppCompatActivity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private View.OnClickListener counterBoxListener=new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            View layout= LayoutInflater.from(ReadingActivity.this).inflate(R.layout.page_pick_dialog,null);
+            final EditText edit=(EditText) layout.findViewById(R.id.page_edit);
+            new AlertDialog.Builder(ReadingActivity.this).setTitle("Move to page").setView(layout)
+                                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                                        @Override
+                                                        public void onClick(DialogInterface dialog, int which) {
+                                                            String result=edit.getText().toString();
+                                                            if(result.length()!=0){
+                                                                int page=Integer.parseInt(result);
+                                                                if(!mContentView.toPage(page)){
+                                                                    Toast.makeText(ReadingActivity.this,"Your page doesn't exist",Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            }
+                                                        }
+                                                    }).show();
+        }
+    };
 }

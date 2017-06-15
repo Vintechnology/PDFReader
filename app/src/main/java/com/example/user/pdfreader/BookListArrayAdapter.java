@@ -32,10 +32,11 @@ public class BookListArrayAdapter extends ArrayAdapter<File> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        LayoutInflater inflater=(LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View returnView=convertView;
-        if(returnView==null)
-            returnView=inflater.inflate(R.layout.array_item,parent,false);
+        if(returnView==null) {
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            returnView = inflater.inflate(R.layout.array_item, parent, false);
+        }
         TextView nameView=(TextView)returnView.findViewById(R.id.book_name);
         File displayedFile=fileList.get(position);
         nameView.setText(displayedFile.getName());

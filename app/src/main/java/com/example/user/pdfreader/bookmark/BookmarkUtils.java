@@ -49,7 +49,7 @@ public class BookmarkUtils {
                 Bookmark newBookmark= db.addBookmark(currentPage,note.getText().toString(),fileName);
                 adapter.add(newBookmark);
             }
-        }).show();
+        }).setNegativeButton("Cancel",null).show();
 
     }
 

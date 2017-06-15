@@ -45,11 +45,13 @@ public class BookViewPager extends ViewPager {
         }
     }
 
-    public void toPage(int realPagePosition){
+    public boolean toPage(int realPagePosition){
         int indexPagePosition=realPagePosition-1;
         if(indexPagePosition>=0 && indexPagePosition<pageCount){
             setCurrentItem(indexPagePosition,false);
+            return true;
         }
+        return false;
     }
 
     @Override

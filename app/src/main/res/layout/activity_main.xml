@@ -11,5 +11,23 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:drawSelectorOnTop="true"/>
-
+    <LinearLayout
+        android:id="@+id/empty_file_text"
+        android:layout_gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:orientation="vertical">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_folder_black_48dp"
+            android:layout_gravity="center"
+            tools:ignore="ContentDescription" />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/empty_file_string"
+        android:textSize="30sp"/>
+    </LinearLayout>
 </FrameLayout>

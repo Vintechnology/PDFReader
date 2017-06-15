@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String FILE_TO_READ="FILE_TO_READ";
     private ListView listView;
     private ArrayList<File> fileList;
+    private View emptyFileText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         fileList=new ArrayList<>();
         listView=(ListView) findViewById(R.id.pdf_files_list);
+        emptyFileText=findViewById(R.id.empty_file_text);
         new PDFListLoader().execute();
 
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -57,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
             if(fileList!=null && fileList.size()>0){
                 BookListArrayAdapter adapter=new BookListArrayAdapter(getApplicationContext(),fileList);
                 listView.setAdapter(adapter);
+            }else{
+                emptyFileText.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -75,6 +79,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+
+    }
+
+    private void getAllPdfFistPage(){
 
     }
 
