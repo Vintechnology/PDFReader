@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.pdf.PdfRenderer;
 import android.os.ParcelFileDescriptor;
 import android.util.Log;
-import android.widget.ImageView;
 
 import java.io.File;
 

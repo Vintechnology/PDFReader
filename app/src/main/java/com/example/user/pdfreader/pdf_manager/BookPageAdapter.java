@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,7 +12,6 @@ import android.widget.ImageView;
 
 import com.example.user.pdfreader.InteractiveImageView;
 import com.example.user.pdfreader.R;
-import com.example.user.pdfreader.pdf_manager.PDFDisplayer;
 
 import java.io.File;
 import java.util.Stack;
